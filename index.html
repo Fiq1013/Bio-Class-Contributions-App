@@ -3,16 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>StudyShare | Noir Edition</title>
+    <title>StudyShare | Johan Park Edition</title>
     <style>
         :root {
-            --bg: #000000;
-            --surface: #121212;
-            --border: #333333;
-            --text-main: #ffffff;
-            --text-dim: #a0a0a0;
-            --accent: #ffffff;
-            --danger: #ff4444;
+            --bg: #ffffff;
+            --surface: #ffffff;
+            --border: #e0e0e0;
+            --text-main: #000000;
+            --text-dim: #757575;
+            --accent: #000000;
+            --danger: #d32f2f;
         }
         body { 
             font-family: 'Inter', -apple-system, sans-serif; 
@@ -20,61 +20,76 @@
             color: var(--text-main); 
             margin: 0; padding: 20px;
             display: flex; flex-direction: column; align-items: center;
+            min-height: 100vh;
+        }
+        .signature {
+            position: absolute;
+            top: 20px;
+            right: 30px;
+            font-size: 0.75rem;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            font-weight: 700;
+            color: var(--text-main);
+            border-bottom: 2px solid var(--accent);
         }
         .app-card {
             max-width: 500px; width: 100%;
             background: var(--surface);
-            padding: 40px; border-radius: 2px; /* Sharp edges for modern look */
+            padding: 40px; border-radius: 0; 
             border: 1px solid var(--border);
-            box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+            box-shadow: 0 10px 40px rgba(0,0,0,0.05);
+            margin-top: 80px;
         }
-        h1 { font-size: 2rem; font-weight: 900; letter-spacing: -1px; margin: 0 0 10px 0; text-transform: uppercase; }
-        p.subtitle { color: var(--text-dim); margin-bottom: 30px; font-size: 0.9rem; }
+        h1 { font-size: 2.8rem; font-weight: 900; letter-spacing: -3px; margin: 0; text-transform: uppercase; line-height: 0.9; }
+        p.subtitle { color: var(--text-dim); margin-bottom: 40px; font-size: 0.85rem; font-weight: 500; }
         
         input { 
             width: 100%; padding: 15px; margin: 10px 0; 
-            background: transparent; border: 1px solid var(--border); 
-            color: white; border-radius: 0; box-sizing: border-box;
+            background: #fcfcfc; border: 1px solid var(--border); 
+            color: black; border-radius: 0; box-sizing: border-box;
+            transition: all 0.2s ease;
         }
-        input:focus { border-color: var(--accent); outline: none; }
+        input:focus { border-color: var(--accent); outline: none; background: white; }
         
         .btn-post { 
-            width: 100%; padding: 15px; border: 1px solid var(--accent);
-            background: var(--accent); color: black; 
+            width: 100%; padding: 20px; border: 1px solid var(--accent);
+            background: var(--accent); color: white; 
             font-weight: 900; text-transform: uppercase;
-            cursor: pointer; margin-top: 20px; transition: 0.3s;
+            cursor: pointer; margin-top: 25px; transition: 0.2s;
         }
-        .btn-post:hover { background: transparent; color: white; }
+        .btn-post:hover { background: white; color: black; }
 
-        .feed-container { margin-top: 50px; width: 100%; }
+        .feed-container { margin-top: 60px; width: 100%; }
         .post { 
-            border-bottom: 1px solid var(--border);
-            padding: 20px 0;
-            display: flex; justify-content: space-between; align-items: center;
+            border-top: 1px solid var(--border);
+            padding: 30px 0;
+            display: flex; justify-content: space-between; align-items: flex-start;
         }
-        .post-info b { font-size: 1.1rem; display: block; }
-        .post-info small { color: var(--text-dim); }
+        .post-info b { font-size: 1.2rem; display: block; text-transform: uppercase; letter-spacing: -0.5px; }
+        .post-info small { color: var(--text-dim); font-size: 0.75rem; text-transform: uppercase; }
         
-        .post-actions { display: flex; gap: 15px; align-items: center; }
-        .btn-view { color: var(--text-main); text-decoration: underline; font-size: 0.8rem; font-weight: bold; }
-        .btn-delete { background: none; border: 1px solid var(--danger); color: var(--danger); padding: 5px 10px; cursor: pointer; font-size: 0.7rem; }
-        .btn-delete:hover { background: var(--danger); color: white; }
+        .post-actions { display: flex; gap: 20px; align-items: center; padding-top: 5px; }
+        .btn-view { color: var(--text-main); text-decoration: none; font-size: 0.8rem; font-weight: 800; border-bottom: 3px solid var(--accent); }
+        .btn-delete { background: none; border: none; color: var(--danger); cursor: pointer; font-size: 0.7rem; font-weight: bold; text-transform: uppercase; text-decoration: underline; }
     </style>
 </head>
 <body>
 
+<div class="signature">Made By Johan Park</div>
+
 <div class="app-card">
     <h1>StudyShare</h1>
-    <p class="subtitle">Global Knowledge Exchange // Panel B</p>
+    <p class="subtitle">Global Knowledge Hub // Panel B</p>
     
-    <input type="text" id="userName" placeholder="NAME">
-    <input type="text" id="guideTitle" placeholder="TOPIC">
-    <input type="text" id="fileLink" placeholder="PASTE URL (GOOGLE DOC / CANVA)">
+    <input type="text" id="userName" placeholder="IDENTIFICATION (NAME)">
+    <input type="text" id="guideTitle" placeholder="KNOWLEDGE TOPIC">
+    <input type="text" id="fileLink" placeholder="RESOURCE URL (GOOGLE DOC / PDF)">
     
-    <button class="btn-post" id="uploadBtn">Sync to Global Feed</button>
+    <button class="btn-post" id="uploadBtn">Sync to Global Registry</button>
 
     <div class="feed-container" id="items">
-        <p style="color: var(--text-dim)">Initializing global stream...</p>
+        <p style="color: var(--text-dim); font-size: 0.8rem;">Awaiting stream...</p>
     </div>
 </div>
 
@@ -106,13 +121,13 @@
       await addDoc(collection(db, "guides"), { name, title, fileUrl: link, timestamp: new Date() });
       document.getElementById('guideTitle').value = '';
       document.getElementById('fileLink').value = '';
-    } catch (e) { alert("Error: Check Firestore Rules"); }
+    } catch (e) { alert("Connectivity Error."); }
   };
 
   document.getElementById('uploadBtn').onclick = window.uploadData;
 
   window.deletePost = async (id) => {
-    if(confirm("Permanently delete from global feed?")) {
+    if(confirm("Erase from global registry?")) {
         await deleteDoc(doc(db, "guides", id));
     }
   };
@@ -132,7 +147,7 @@
             </div>
             <div class="post-actions">
                 <a href="${data.fileUrl}" target="_blank" class="btn-view">ACCESS</a>
-                <button class="btn-delete" onclick="deletePost('${id}')">WIPE</button>
+                <button class="btn-delete" onclick="deletePost('${id}')">ERASE</button>
             </div>
         </div>`;
     });
