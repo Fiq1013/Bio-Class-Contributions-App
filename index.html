@@ -3,42 +3,75 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>StudyShare | Global Link Exchange</title>
+    <title>StudyShare | Global Knowledge Hub</title>
     <style>
-        :root { --primary: #2c3e50; --accent: #3498db; --light: #ecf0f1; }
-        body { font-family: 'Segoe UI', sans-serif; background: var(--light); color: var(--primary); margin: 0; display: flex; flex-direction: column; align-items: center; }
-        header { background: var(--primary); color: white; width: 100%; padding: 1.5rem 0; text-align: center; }
-        .container { max-width: 550px; width: 95%; background: white; padding: 2rem; margin-top: 2rem; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); box-sizing: border-box; }
-        input { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; }
-        button { width: 100%; padding: 12px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; background: var(--accent); color: white; margin-top: 10px; }
-        #items { margin-top: 2rem; border-top: 2px solid var(--light); padding-top: 1rem; }
-        .upload-item { background: #f9f9f9; padding: 15px; border-radius: 6px; margin-bottom: 10px; border-left: 5px solid var(--accent); display: flex; justify-content: space-between; align-items: center; }
-        .download-btn { background: #27ae60; color: white; padding: 8px 15px; border-radius: 4px; text-decoration: none; font-size: 14px; }
+        :root {
+            --bg: #f4f7f6;
+            --glass: rgba(255, 255, 255, 0.9);
+            --primary: #6366f1; /* Modern Indigo */
+            --danger: #ef4444;
+            --text: #1f2937;
+        }
+        body { 
+            font-family: 'Inter', system-ui, sans-serif; 
+            background: linear-gradient(135deg, #e0e7ff 0%, #f3f4f6 100%);
+            color: var(--text); 
+            margin: 0; padding: 20px;
+            min-height: 100vh;
+        }
+        .app-card {
+            max-width: 600px; margin: 40px auto;
+            background: var(--glass); backdrop-filter: blur(10px);
+            padding: 30px; border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        h1 { font-weight: 800; color: var(--primary); margin-top: 0; }
+        input { 
+            width: 100%; padding: 12px; margin: 8px 0; 
+            border: 2px solid #e5e7eb; border-radius: 10px; 
+            font-size: 16px; transition: 0.2s;
+        }
+        input:focus { border-color: var(--primary); outline: none; }
+        .btn-post { 
+            width: 100%; padding: 14px; border: none; 
+            background: var(--primary); color: white; 
+            border-radius: 10px; font-weight: bold; font-size: 16px;
+            cursor: pointer; margin-top: 10px; transition: transform 0.1s;
+        }
+        .btn-post:active { transform: scale(0.98); }
+        .feed-container { margin-top: 30px; }
+        .post { 
+            background: white; padding: 15px; border-radius: 12px;
+            margin-bottom: 15px; border: 1px solid #e5e7eb;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .post-info b { font-size: 18px; color: var(--primary); }
+        .post-actions { display: flex; gap: 10px; }
+        .btn-view { text-decoration: none; color: #4f46e5; font-weight: 600; padding: 5px 10px; border: 1px solid #4f46e5; border-radius: 6px; font-size: 14px; }
+        .btn-delete { background: none; border: none; color: var(--danger); cursor: pointer; font-size: 14px; font-weight: 600; }
     </style>
 </head>
 <body>
 
-<header>
-    <h1>StudyShare Global</h1>
-    <p>Share Study Guide Links Globally - No Paywall</p>
-</header>
-
-<div class="container">
-    <h3>Share Your Study Guide Link</h3>
-    <input type="text" id="userName" placeholder="Your Name">
-    <input type="text" id="guideTitle" placeholder="Topic (e.g. Colonial Social Hierarchy)">
-    <input type="text" id="fileLink" placeholder="Paste Link (Google Doc, Canva, etc.)">
-    <button id="uploadBtn">Post to Global Feed</button>
+<div class="app-card">
+    <h1>StudyShare</h1>
+    <p>Global Knowledge Exchange</p>
     
-    <div id="items">
-        <h4>Global Shared Guides</h4>
-        <p id="loading">Connecting to database...</p>
+    <input type="text" id="userName" placeholder="Your Name">
+    <input type="text" id="guideTitle" placeholder="Topic (e.g., The Traza vs. The Engenho)">
+    <input type="text" id="fileLink" placeholder="Paste Link (Google Doc, Canva, or PDF URL)">
+    
+    <button class="btn-post" id="uploadBtn">Post to Global Feed</button>
+
+    <div class="feed-container" id="items">
+        <h3>Live Shared Knowledge</h3>
+        <p>Connecting to colonial database...</p>
     </div>
 </div>
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-  import { getFirestore, collection, addDoc, onSnapshot, query, orderBy } from "https://https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+  import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyDVMZCwW73qc3_vftU1WQf0mOEMdy512SQ",
@@ -53,35 +86,48 @@
   const app = initializeApp(firebaseConfig);
   const db = getFirestore(app);
 
+  // POST DATA
   window.uploadData = async () => {
     const name = document.getElementById('userName').value;
     const title = document.getElementById('guideTitle').value;
     const link = document.getElementById('fileLink').value;
 
-    if(!name || !title || !link) return alert("Please fill out all fields!");
+    if(!name || !title || !link) return alert("Please fill all fields!");
 
     try {
-      await addDoc(collection(db, "guides"), {
-        name, title, fileUrl: link, timestamp: new Date()
-      });
+      await addDoc(collection(db, "guides"), { name, title, fileUrl: link, timestamp: new Date() });
       document.getElementById('guideTitle').value = '';
       document.getElementById('fileLink').value = '';
-      alert("Shared successfully!");
-    } catch (e) { alert("Error: Check your Firestore Database Rules!"); }
+    } catch (e) { alert("Check Firestore Rules!"); }
   };
 
   document.getElementById('uploadBtn').onclick = window.uploadData;
 
+  // GLOBAL DELETE FUNCTION
+  window.deletePost = async (id) => {
+    if(confirm("Delete this globally for everyone?")) {
+        await deleteDoc(doc(db, "guides", id));
+    }
+  };
+
+  // REAL-TIME FEED
   const q = query(collection(db, "guides"), orderBy("timestamp", "desc"));
   onSnapshot(q, (snapshot) => {
     const itemsDiv = document.getElementById('items');
-    itemsDiv.innerHTML = '<h4>Global Shared Guides</h4>';
-    snapshot.forEach((doc) => {
-      const data = doc.data();
+    itemsDiv.innerHTML = '<h3>Live Shared Knowledge</h3>';
+    snapshot.forEach((snapshotDoc) => {
+      const data = snapshotDoc.data();
+      const id = snapshotDoc.id;
       itemsDiv.innerHTML += `
-        <div class="upload-item">
-            <div><strong>${data.title}</strong><br><small>By: ${data.name}</small></div>
-            <a href="${data.fileUrl}" target="_blank" class="download-btn">View Guide</a>
+        <div class="post">
+            <div class="post-info">
+                <b>${data.title}</b><br>
+                <small>By: ${data.name}</small>
+            </div>
+            <div class="post-actions">
+                <a href="${data.fileUrl}" target="_blank" class="btn-view">View</a>
+                <button class="btn-delete" onclick="deletePost('${id}')">Delete</button>
+            </div>
         </div>`;
     });
   });
