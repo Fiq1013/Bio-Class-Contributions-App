@@ -44,8 +44,25 @@
         .post-header { display: flex; justify-content: space-between; align-items: flex-start; }
         .post-info b { font-size: 1.2rem; display: block; text-transform: uppercase; }
         
+        .btn-toggle-fb { 
+            background: none; border: none; font-size: 0.7rem; font-weight: bold; 
+            text-transform: uppercase; cursor: pointer; padding: 0; margin-top: 10px; 
+            color: var(--text-dim); text-decoration: underline;
+        }
+
         .feedback-section { margin-top: 15px; background: #f9f9f9; padding: 10px; border-left: 3px solid #000; }
-        .feedback-item { font-size: 0.8rem; margin-bottom: 5px; border-bottom: 1px solid #eee; padding-bottom: 3px; }
+        .feedback-content { display: none; margin-top: 10px; }
+        
+        /* Updated Feedback Item Styles */
+        .feedback-item { 
+            font-size: 0.8rem; margin-bottom: 5px; border-bottom: 1px solid #eee; 
+            padding-bottom: 3px; display: flex; justify-content: space-between; align-items: center;
+        }
+        .del-fb { 
+            color: var(--danger); cursor: pointer; border: none; background: none; 
+            font-weight: bold; font-size: 0.9rem; padding: 0 5px;
+        }
+
         .feedback-input-group { display: flex; margin-top: 10px; gap: 5px; }
         .feedback-input { flex-grow: 1; padding: 5px; font-size: 0.8rem; border: 1px solid var(--border); }
         .btn-feed { background: #000; color: #fff; border: none; font-size: 0.7rem; padding: 5px 10px; cursor: pointer; }
@@ -73,7 +90,7 @@
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-  import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, deleteDoc, doc, updateDoc, arrayUnion } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+  import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, deleteDoc, doc, updateDoc, getDoc, arrayUnion, arrayRemove } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyDVMZCwW73qc3_vftU1WQf0mOEMdy512SQ",
@@ -106,8 +123,30 @@
     fbInput.value = '';
   };
 
+  // Logic to delete specific feedback
+  window.deleteFeedback = async (postId, feedbackText) => {
+    if(confirm("Remove this comment?")) {
+        const postRef = doc(db, "guides", postId);
+        await updateDoc(postRef, {
+            feedback: arrayRemove(feedbackText)
+        });
+    }
+  };
+
   window.deletePost = async (id) => {
     if(confirm("Erase from global registry?")) await deleteDoc(doc(db, "guides", id));
+  };
+
+  window.toggleFeedback = (id) => {
+    const content = document.getElementById(`fb-content-${id}`);
+    const btn = document.getElementById(`btn-toggle-${id}`);
+    if (content.style.display === "block") {
+        content.style.display = "none";
+        btn.innerText = `Show Feedback`;
+    } else {
+        content.style.display = "block";
+        btn.innerText = `Hide Feedback`;
+    }
   };
 
   document.getElementById('uploadBtn').onclick = window.uploadData;
@@ -119,7 +158,15 @@
     snapshot.forEach((snap) => {
       const data = snap.data();
       const id = snap.id;
-      const feedbackHtml = (data.feedback || []).map(f => `<div class="feedback-item">${f}</div>`).join('');
+      const feedbackCount = data.feedback ? data.feedback.length : 0;
+      
+      // Map feedback with a delete button
+      const feedbackHtml = (data.feedback || []).map(f => `
+        <div class="feedback-item">
+            <span>${f}</span>
+            <button class="del-fb" onclick="deleteFeedback('${id}', '${f.replace(/'/g, "\\'")}')">&times;</button>
+        </div>
+      `).join('');
       
       itemsDiv.innerHTML += `
         <div class="post">
@@ -133,11 +180,18 @@
                     <button class="btn-delete" onclick="deletePost('${id}')">ERASE</button>
                 </div>
             </div>
+
             <div class="feedback-section">
-                <div id="fb-list-${id}">${feedbackHtml}</div>
-                <div class="feedback-input-group">
-                    <input type="text" class="feedback-input" id="fb-in-${id}" placeholder="Add feedback...">
-                    <button class="btn-feed" onclick="addFeedback('${id}')">SEND</button>
+                <button class="btn-toggle-fb" id="btn-toggle-${id}" onclick="toggleFeedback('${id}')">
+                    Feedback (${feedbackCount})
+                </button>
+                
+                <div class="feedback-content" id="fb-content-${id}">
+                    <div id="fb-list-${id}">${feedbackHtml}</div>
+                    <div class="feedback-input-group">
+                        <input type="text" class="feedback-input" id="fb-in-${id}" placeholder="Add feedback...">
+                        <button class="btn-feed" onclick="addFeedback('${id}')">SEND</button>
+                    </div>
                 </div>
             </div>
         </div>`;
@@ -146,5 +200,3 @@
 </script>
 </body>
 </html>
-
-
